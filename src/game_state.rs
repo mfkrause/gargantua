@@ -1,12 +1,18 @@
 use std::fmt;
 
-#[derive(Debug)]
+use macroquad::{
+    color::WHITE,
+    math::vec2,
+    texture::{DrawTextureParams, Texture2D, draw_texture_ex, load_texture},
+};
+
+#[derive(Debug, Clone, Copy)]
 pub enum PieceColor {
     White,
     Black,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum Piece {
     Pawn,
     Knight,
@@ -16,10 +22,76 @@ pub enum Piece {
     King,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct PieceOnBoard {
     piece: Piece,
     color: PieceColor,
+}
+
+impl PieceOnBoard {
+    pub async fn draw(self, x: f32, y: f32, w: f32, h: f32) {
+        let texture: Texture2D = match self {
+            PieceOnBoard {
+                piece: Piece::Pawn,
+                color: PieceColor::White,
+            } => load_texture("assets/wP.png").await.unwrap(),
+            PieceOnBoard {
+                piece: Piece::Rook,
+                color: PieceColor::White,
+            } => load_texture("assets/wR.png").await.unwrap(),
+            PieceOnBoard {
+                piece: Piece::Knight,
+                color: PieceColor::White,
+            } => load_texture("assets/wN.png").await.unwrap(),
+            PieceOnBoard {
+                piece: Piece::Bishop,
+                color: PieceColor::White,
+            } => load_texture("assets/wB.png").await.unwrap(),
+            PieceOnBoard {
+                piece: Piece::Queen,
+                color: PieceColor::White,
+            } => load_texture("assets/wQ.png").await.unwrap(),
+            PieceOnBoard {
+                piece: Piece::King,
+                color: PieceColor::White,
+            } => load_texture("assets/wK.png").await.unwrap(),
+            PieceOnBoard {
+                piece: Piece::Pawn,
+                color: PieceColor::Black,
+            } => load_texture("assets/bP.png").await.unwrap(),
+            PieceOnBoard {
+                piece: Piece::Rook,
+                color: PieceColor::Black,
+            } => load_texture("assets/bR.png").await.unwrap(),
+            PieceOnBoard {
+                piece: Piece::Knight,
+                color: PieceColor::Black,
+            } => load_texture("assets/bN.png").await.unwrap(),
+            PieceOnBoard {
+                piece: Piece::Bishop,
+                color: PieceColor::Black,
+            } => load_texture("assets/bB.png").await.unwrap(),
+            PieceOnBoard {
+                piece: Piece::Queen,
+                color: PieceColor::Black,
+            } => load_texture("assets/bQ.png").await.unwrap(),
+            PieceOnBoard {
+                piece: Piece::King,
+                color: PieceColor::Black,
+            } => load_texture("assets/bK.png").await.unwrap(),
+        };
+
+        draw_texture_ex(
+            &texture,
+            x,
+            y,
+            WHITE,
+            DrawTextureParams {
+                dest_size: Some(vec2(w, h)),
+                ..Default::default()
+            },
+        );
+    }
 }
 
 #[derive(Debug)]

@@ -31,7 +31,7 @@ async fn main() {
         if is_mouse_button_released(MouseButton::Left) {
             let mouse_pos = mouse_position();
             let square = Square {
-                column: (mouse_pos.1 / SQUARE_SIZE).floor() as u8,
+                column: 7 - (mouse_pos.1 / SQUARE_SIZE).floor() as u8,
                 row: (mouse_pos.0 / SQUARE_SIZE).floor() as u8,
             };
 
@@ -39,11 +39,11 @@ async fn main() {
                 highlighted_field = Some(square);
             } else {
                 // Move piece to new location
-                game_state.board[square.column as usize][square.row as usize] = game_state.board
-                    [highlighted_field.unwrap().column as usize]
-                    [highlighted_field.unwrap().row as usize];
-                game_state.board[highlighted_field.unwrap().column as usize]
-                    [highlighted_field.unwrap().row as usize] = None;
+                game_state.replace_piece(
+                    &square,
+                    Some(game_state.get_piece_at_square(&highlighted_field.unwrap())),
+                );
+                game_state.replace_piece(&highlighted_field.unwrap(), None);
                 highlighted_field = None;
             }
         }

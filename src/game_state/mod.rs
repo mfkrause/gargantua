@@ -7,7 +7,7 @@ pub enum PieceColor {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub enum Piece {
+pub enum PieceKind {
     Pawn,
     Knight,
     Bishop,
@@ -17,8 +17,8 @@ pub enum Piece {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct PieceOnBoard {
-    pub piece: Piece,
+pub struct Piece {
+    pub piece: PieceKind,
     pub color: PieceColor,
 }
 
@@ -28,7 +28,7 @@ pub struct CastlingRights {
     queen_side: bool,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Square {
     pub column: u8,
     pub row: u8,
@@ -36,18 +36,27 @@ pub struct Square {
 
 impl Square {
     pub fn from_algebraic_notation(notation: &str) -> Self {
-        // TODO: implement
-        Square { column: 0, row: 0 }
+        // TODO: error handling
+        let lowercased_notation = notation.to_lowercase();
+        let mut chars = lowercased_notation.chars();
+        let letter = chars.nth(0).unwrap();
+        let number = chars.nth(0).unwrap();
+        Square {
+            column: "abcdefgh".chars().position(|x| x == letter).unwrap() as u8,
+            row: number.to_digit(10).unwrap() as u8 - 1,
+        }
     }
     pub fn to_algebraic_notation(&self) -> String {
-        // TODO: implement
-        String::from("")
+        // TODO: error handling
+        let letter = "abcdefgh".chars().nth(self.column as usize).unwrap();
+        let number = self.row + 1;
+        format!("{}{}", letter, number)
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct GameState {
-    pub board: [[Option<PieceOnBoard>; 8]; 8],
+    pub board: [[Option<Piece>; 8]; 8],
     pub color_to_move: PieceColor,
     pub white_castling_rights: CastlingRights,
     pub black_castling_rights: CastlingRights,
@@ -59,143 +68,143 @@ impl GameState {
         Self {
             board: [
                 [
-                    Some(PieceOnBoard {
-                        piece: Piece::Rook,
-                        color: PieceColor::Black,
-                    }),
-                    Some(PieceOnBoard {
-                        piece: Piece::Knight,
-                        color: PieceColor::Black,
-                    }),
-                    Some(PieceOnBoard {
-                        piece: Piece::Bishop,
-                        color: PieceColor::Black,
-                    }),
-                    Some(PieceOnBoard {
-                        piece: Piece::Queen,
-                        color: PieceColor::Black,
-                    }),
-                    Some(PieceOnBoard {
-                        piece: Piece::King,
-                        color: PieceColor::Black,
-                    }),
-                    Some(PieceOnBoard {
-                        piece: Piece::Bishop,
-                        color: PieceColor::Black,
-                    }),
-                    Some(PieceOnBoard {
-                        piece: Piece::Knight,
-                        color: PieceColor::Black,
-                    }),
-                    Some(PieceOnBoard {
-                        piece: Piece::Rook,
-                        color: PieceColor::Black,
-                    }),
-                ],
-                [
-                    Some(PieceOnBoard {
-                        piece: Piece::Pawn,
-                        color: PieceColor::Black,
-                    }),
-                    Some(PieceOnBoard {
-                        piece: Piece::Pawn,
-                        color: PieceColor::Black,
-                    }),
-                    Some(PieceOnBoard {
-                        piece: Piece::Pawn,
-                        color: PieceColor::Black,
-                    }),
-                    Some(PieceOnBoard {
-                        piece: Piece::Pawn,
-                        color: PieceColor::Black,
-                    }),
-                    Some(PieceOnBoard {
-                        piece: Piece::Pawn,
-                        color: PieceColor::Black,
-                    }),
-                    Some(PieceOnBoard {
-                        piece: Piece::Pawn,
-                        color: PieceColor::Black,
-                    }),
-                    Some(PieceOnBoard {
-                        piece: Piece::Pawn,
-                        color: PieceColor::Black,
-                    }),
-                    Some(PieceOnBoard {
-                        piece: Piece::Pawn,
-                        color: PieceColor::Black,
-                    }),
-                ],
-                [None, None, None, None, None, None, None, None],
-                [None, None, None, None, None, None, None, None],
-                [None, None, None, None, None, None, None, None],
-                [None, None, None, None, None, None, None, None],
-                [
-                    Some(PieceOnBoard {
-                        piece: Piece::Pawn,
+                    Some(Piece {
+                        piece: PieceKind::Rook,
                         color: PieceColor::White,
                     }),
-                    Some(PieceOnBoard {
-                        piece: Piece::Pawn,
+                    Some(Piece {
+                        piece: PieceKind::Knight,
                         color: PieceColor::White,
                     }),
-                    Some(PieceOnBoard {
-                        piece: Piece::Pawn,
+                    Some(Piece {
+                        piece: PieceKind::Bishop,
                         color: PieceColor::White,
                     }),
-                    Some(PieceOnBoard {
-                        piece: Piece::Pawn,
+                    Some(Piece {
+                        piece: PieceKind::Queen,
                         color: PieceColor::White,
                     }),
-                    Some(PieceOnBoard {
-                        piece: Piece::Pawn,
+                    Some(Piece {
+                        piece: PieceKind::King,
                         color: PieceColor::White,
                     }),
-                    Some(PieceOnBoard {
-                        piece: Piece::Pawn,
+                    Some(Piece {
+                        piece: PieceKind::Bishop,
                         color: PieceColor::White,
                     }),
-                    Some(PieceOnBoard {
-                        piece: Piece::Pawn,
+                    Some(Piece {
+                        piece: PieceKind::Knight,
                         color: PieceColor::White,
                     }),
-                    Some(PieceOnBoard {
-                        piece: Piece::Pawn,
+                    Some(Piece {
+                        piece: PieceKind::Rook,
                         color: PieceColor::White,
                     }),
                 ],
                 [
-                    Some(PieceOnBoard {
-                        piece: Piece::Rook,
+                    Some(Piece {
+                        piece: PieceKind::Pawn,
                         color: PieceColor::White,
                     }),
-                    Some(PieceOnBoard {
-                        piece: Piece::Knight,
+                    Some(Piece {
+                        piece: PieceKind::Pawn,
                         color: PieceColor::White,
                     }),
-                    Some(PieceOnBoard {
-                        piece: Piece::Bishop,
+                    Some(Piece {
+                        piece: PieceKind::Pawn,
                         color: PieceColor::White,
                     }),
-                    Some(PieceOnBoard {
-                        piece: Piece::Queen,
+                    Some(Piece {
+                        piece: PieceKind::Pawn,
                         color: PieceColor::White,
                     }),
-                    Some(PieceOnBoard {
-                        piece: Piece::King,
+                    Some(Piece {
+                        piece: PieceKind::Pawn,
                         color: PieceColor::White,
                     }),
-                    Some(PieceOnBoard {
-                        piece: Piece::Bishop,
+                    Some(Piece {
+                        piece: PieceKind::Pawn,
                         color: PieceColor::White,
                     }),
-                    Some(PieceOnBoard {
-                        piece: Piece::Knight,
+                    Some(Piece {
+                        piece: PieceKind::Pawn,
                         color: PieceColor::White,
                     }),
-                    Some(PieceOnBoard {
-                        piece: Piece::Rook,
+                    Some(Piece {
+                        piece: PieceKind::Pawn,
                         color: PieceColor::White,
+                    }),
+                ],
+                [None, None, None, None, None, None, None, None],
+                [None, None, None, None, None, None, None, None],
+                [None, None, None, None, None, None, None, None],
+                [None, None, None, None, None, None, None, None],
+                [
+                    Some(Piece {
+                        piece: PieceKind::Pawn,
+                        color: PieceColor::Black,
+                    }),
+                    Some(Piece {
+                        piece: PieceKind::Pawn,
+                        color: PieceColor::Black,
+                    }),
+                    Some(Piece {
+                        piece: PieceKind::Pawn,
+                        color: PieceColor::Black,
+                    }),
+                    Some(Piece {
+                        piece: PieceKind::Pawn,
+                        color: PieceColor::Black,
+                    }),
+                    Some(Piece {
+                        piece: PieceKind::Pawn,
+                        color: PieceColor::Black,
+                    }),
+                    Some(Piece {
+                        piece: PieceKind::Pawn,
+                        color: PieceColor::Black,
+                    }),
+                    Some(Piece {
+                        piece: PieceKind::Pawn,
+                        color: PieceColor::Black,
+                    }),
+                    Some(Piece {
+                        piece: PieceKind::Pawn,
+                        color: PieceColor::Black,
+                    }),
+                ],
+                [
+                    Some(Piece {
+                        piece: PieceKind::Rook,
+                        color: PieceColor::Black,
+                    }),
+                    Some(Piece {
+                        piece: PieceKind::Knight,
+                        color: PieceColor::Black,
+                    }),
+                    Some(Piece {
+                        piece: PieceKind::Bishop,
+                        color: PieceColor::Black,
+                    }),
+                    Some(Piece {
+                        piece: PieceKind::Queen,
+                        color: PieceColor::Black,
+                    }),
+                    Some(Piece {
+                        piece: PieceKind::King,
+                        color: PieceColor::Black,
+                    }),
+                    Some(Piece {
+                        piece: PieceKind::Bishop,
+                        color: PieceColor::Black,
+                    }),
+                    Some(Piece {
+                        piece: PieceKind::Knight,
+                        color: PieceColor::Black,
+                    }),
+                    Some(Piece {
+                        piece: PieceKind::Rook,
+                        color: PieceColor::Black,
                     }),
                 ],
             ],
@@ -211,11 +220,44 @@ impl GameState {
             half_turn_count: 0,
         }
     }
+
+    pub fn get_piece_at_square(&self, square: &Square) -> Piece {
+        self.board[square.column as usize][square.row as usize].unwrap()
+    }
+
+    pub fn replace_piece(&mut self, square: &Square, new_piece: Option<Piece>) {
+        self.board[square.column as usize][square.row as usize] = new_piece;
+    }
 }
 
 impl fmt::Display for GameState {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         // TODO: Print visual representation of board
         write!(f, "{:?}", self)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_square_from_algebraic_notation() {
+        assert_eq!(
+            Square::from_algebraic_notation("a1"),
+            Square { column: 0, row: 0 }
+        );
+
+        assert_eq!(
+            Square::from_algebraic_notation("h8"),
+            Square { column: 7, row: 7 }
+        );
+    }
+
+    #[test]
+    fn test_square_to_algebraic_notation() {
+        assert_eq!(Square { column: 0, row: 0 }.to_algebraic_notation(), "a1");
+
+        assert_eq!(Square { column: 7, row: 7 }.to_algebraic_notation(), "h8");
     }
 }

@@ -5,7 +5,7 @@ use macroquad::{
     texture::{DrawTextureParams, Texture2D, draw_texture_ex, load_texture},
 };
 
-use crate::game_state::{GameState, Piece, PieceColor, PieceOnBoard, Square};
+use crate::game_state::{GameState, Piece, PieceColor, PieceKind, Square};
 
 const LIGHT_SQUARE_COLOR: Color = Color::from_hex(0xE2E2E2);
 const DARK_SQUARE_COLOR: Color = Color::from_hex(0x6E7E85);
@@ -43,20 +43,20 @@ impl Textures {
         }
     }
 
-    pub fn get_texture_for_piece(&self, p: &PieceOnBoard) -> &Texture2D {
+    pub fn get_texture_for_piece(&self, p: &Piece) -> &Texture2D {
         match (p.piece, p.color) {
-            (Piece::Pawn, PieceColor::White) => &self.white_pawn,
-            (Piece::Rook, PieceColor::White) => &self.white_rook,
-            (Piece::Knight, PieceColor::White) => &self.white_knight,
-            (Piece::Bishop, PieceColor::White) => &self.white_bishop,
-            (Piece::Queen, PieceColor::White) => &self.white_queen,
-            (Piece::King, PieceColor::White) => &self.white_king,
-            (Piece::Pawn, PieceColor::Black) => &self.black_pawn,
-            (Piece::Rook, PieceColor::Black) => &self.black_rook,
-            (Piece::Knight, PieceColor::Black) => &self.black_knight,
-            (Piece::Bishop, PieceColor::Black) => &self.black_bishop,
-            (Piece::Queen, PieceColor::Black) => &self.black_queen,
-            (Piece::King, PieceColor::Black) => &self.black_king,
+            (PieceKind::Pawn, PieceColor::White) => &self.white_pawn,
+            (PieceKind::Rook, PieceColor::White) => &self.white_rook,
+            (PieceKind::Knight, PieceColor::White) => &self.white_knight,
+            (PieceKind::Bishop, PieceColor::White) => &self.white_bishop,
+            (PieceKind::Queen, PieceColor::White) => &self.white_queen,
+            (PieceKind::King, PieceColor::White) => &self.white_king,
+            (PieceKind::Pawn, PieceColor::Black) => &self.black_pawn,
+            (PieceKind::Rook, PieceColor::Black) => &self.black_rook,
+            (PieceKind::Knight, PieceColor::Black) => &self.black_knight,
+            (PieceKind::Bishop, PieceColor::Black) => &self.black_bishop,
+            (PieceKind::Queen, PieceColor::Black) => &self.black_queen,
+            (PieceKind::King, PieceColor::Black) => &self.black_king,
         }
     }
 }
@@ -68,15 +68,20 @@ pub fn draw_game_state(
     window_size: f32,
 ) {
     let square_size = window_size / 8.0;
-    for (y, board_col) in game_state.board.iter().enumerate() {
-        for (x, piece) in board_col.iter().enumerate() {
-            let square_x = (x as f32) * (window_size / 8.0);
-            let square_y = (y as f32) * (window_size / 8.0);
+    for (y, board_row) in game_state.board.iter().enumerate() {
+        for (x, piece) in board_row.iter().enumerate() {
+            let current_square = Square {
+                column: y as u8,
+                row: x as u8,
+            };
+
+            let current_square_x = current_square.row as f32 * (window_size / 8.0);
+            let current_square_y = (7.0 - current_square.column as f32) * (window_size / 8.0);
 
             // Draw square
             draw_rectangle(
-                square_x,
-                square_y,
+                current_square_x,
+                current_square_y,
                 square_size,
                 square_size,
                 if (x + y) % 2 == 0 {
@@ -87,10 +92,17 @@ pub fn draw_game_state(
             );
 
             if let Some(s) = highlighted_square
-                && s.column == (y as u8)
-                && s.row == (x as u8)
+                && s.column == current_square.column
+                && s.row == current_square.row
             {
-                draw_rectangle_lines(square_x, square_y, square_size, square_size, 4.0, RED);
+                draw_rectangle_lines(
+                    current_square_x,
+                    current_square_y,
+                    square_size,
+                    square_size,
+                    4.0,
+                    RED,
+                );
             }
 
             // Draw piece
@@ -98,8 +110,8 @@ pub fn draw_game_state(
                 let texture = textures.get_texture_for_piece(p);
                 draw_texture_ex(
                     texture,
-                    square_x,
-                    square_y,
+                    current_square_x,
+                    current_square_y,
                     WHITE,
                     DrawTextureParams {
                         dest_size: Some(vec2(square_size, square_size)),

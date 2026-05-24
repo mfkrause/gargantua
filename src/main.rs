@@ -1,8 +1,7 @@
 use macroquad::prelude::*;
 
-use game_state::GameState;
-
-use crate::gui::drawing::Textures;
+use crate::game_state::{GameState, Square};
+use crate::gui::drawing::{Textures, draw_game_state};
 
 mod game_state;
 mod gui;
@@ -21,42 +20,31 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf)]
 async fn main() {
-    let game_state = GameState::initial_position();
     let textures = Textures::load().await;
 
+    let mut game_state = GameState::initial_position();
+    let mut highlighted_field: Option<Square> = None;
+
     loop {
-        for (y, board_col) in game_state.board.iter().enumerate() {
-            for (x, piece) in board_col.iter().enumerate() {
-                let square_x = (x as f32) * (WINDOW_SIZE / 8.0);
-                let square_y = (y as f32) * (WINDOW_SIZE / 8.0);
+        draw_game_state(&game_state, &textures, &highlighted_field, WINDOW_SIZE);
 
-                // Draw square
-                draw_rectangle(
-                    square_x,
-                    square_y,
-                    SQUARE_SIZE,
-                    SQUARE_SIZE,
-                    if (x + y) % 2 == 0 {
-                        Color::from_hex(0xE2E2E2)
-                    } else {
-                        Color::from_hex(0x6E7E85)
-                    },
-                );
+        if is_mouse_button_released(MouseButton::Left) {
+            let mouse_pos = mouse_position();
+            let square = Square {
+                column: (mouse_pos.1 / SQUARE_SIZE).floor() as u8,
+                row: (mouse_pos.0 / SQUARE_SIZE).floor() as u8,
+            };
 
-                // Draw piece
-                if let Some(p) = piece {
-                    let texture = textures.get_texture_for_piece(p);
-                    draw_texture_ex(
-                        texture,
-                        square_x,
-                        square_y,
-                        WHITE,
-                        DrawTextureParams {
-                            dest_size: Some(vec2(SQUARE_SIZE, SQUARE_SIZE)),
-                            ..Default::default()
-                        },
-                    );
-                }
+            if highlighted_field.is_none() {
+                highlighted_field = Some(square);
+            } else {
+                // Move piece to new location
+                game_state.board[square.column as usize][square.row as usize] = game_state.board
+                    [highlighted_field.unwrap().column as usize]
+                    [highlighted_field.unwrap().row as usize];
+                game_state.board[highlighted_field.unwrap().column as usize]
+                    [highlighted_field.unwrap().row as usize] = None;
+                highlighted_field = None;
             }
         }
 

@@ -1,6 +1,14 @@
-use macroquad::texture::{Texture2D, load_texture};
+use macroquad::{
+    color::{Color, RED, WHITE},
+    math::vec2,
+    shapes::{draw_rectangle, draw_rectangle_lines},
+    texture::{DrawTextureParams, Texture2D, draw_texture_ex, load_texture},
+};
 
-use crate::game_state::{Piece, PieceColor, PieceOnBoard};
+use crate::game_state::{GameState, Piece, PieceColor, PieceOnBoard, Square};
+
+const LIGHT_SQUARE_COLOR: Color = Color::from_hex(0xE2E2E2);
+const DARK_SQUARE_COLOR: Color = Color::from_hex(0x6E7E85);
 
 pub struct Textures {
     white_pawn: Texture2D,
@@ -49,6 +57,56 @@ impl Textures {
             (Piece::Bishop, PieceColor::Black) => &self.black_bishop,
             (Piece::Queen, PieceColor::Black) => &self.black_queen,
             (Piece::King, PieceColor::Black) => &self.black_king,
+        }
+    }
+}
+
+pub fn draw_game_state(
+    game_state: &GameState,
+    textures: &Textures,
+    highlighted_square: &Option<Square>,
+    window_size: f32,
+) {
+    let square_size = window_size / 8.0;
+    for (y, board_col) in game_state.board.iter().enumerate() {
+        for (x, piece) in board_col.iter().enumerate() {
+            let square_x = (x as f32) * (window_size / 8.0);
+            let square_y = (y as f32) * (window_size / 8.0);
+
+            // Draw square
+            draw_rectangle(
+                square_x,
+                square_y,
+                square_size,
+                square_size,
+                if (x + y) % 2 == 0 {
+                    LIGHT_SQUARE_COLOR
+                } else {
+                    DARK_SQUARE_COLOR
+                },
+            );
+
+            if let Some(s) = highlighted_square
+                && s.column == (y as u8)
+                && s.row == (x as u8)
+            {
+                draw_rectangle_lines(square_x, square_y, square_size, square_size, 4.0, RED);
+            }
+
+            // Draw piece
+            if let Some(p) = piece {
+                let texture = textures.get_texture_for_piece(p);
+                draw_texture_ex(
+                    texture,
+                    square_x,
+                    square_y,
+                    WHITE,
+                    DrawTextureParams {
+                        dest_size: Some(vec2(square_size, square_size)),
+                        ..Default::default()
+                    },
+                );
+            }
         }
     }
 }

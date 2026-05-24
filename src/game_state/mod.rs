@@ -22,10 +22,27 @@ pub struct PieceOnBoard {
     pub color: PieceColor,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct CastlingRights {
     king_side: bool,
     queen_side: bool,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct Square {
+    pub column: u8,
+    pub row: u8,
+}
+
+impl Square {
+    pub fn from_algebraic_notation(notation: &str) -> Self {
+        // TODO: implement
+        Square { column: 0, row: 0 }
+    }
+    pub fn to_algebraic_notation(&self) -> String {
+        // TODO: implement
+        String::from("")
+    }
 }
 
 #[derive(Debug)]

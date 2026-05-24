@@ -35,16 +35,13 @@ async fn main() {
                 row: (mouse_pos.0 / SQUARE_SIZE).floor() as u8,
             };
 
-            if highlighted_field.is_none() {
-                highlighted_field = Some(square);
-            } else {
+            if let Some(source_square) = highlighted_field {
                 // Move piece to new location
-                game_state.replace_piece(
-                    &square,
-                    Some(game_state.get_piece_at_square(&highlighted_field.unwrap())),
-                );
-                game_state.replace_piece(&highlighted_field.unwrap(), None);
+                game_state.replace_piece(&square, game_state.get_piece_at_square(&source_square));
+                game_state.replace_piece(&source_square, None);
                 highlighted_field = None;
+            } else {
+                highlighted_field = Some(square);
             }
         }
 

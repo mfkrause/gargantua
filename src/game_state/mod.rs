@@ -1,3 +1,4 @@
+use anyhow::{Context, Result, bail};
 use std::fmt;
 
 #[derive(Debug, Clone, Copy)]
@@ -35,22 +36,41 @@ pub struct Square {
 }
 
 impl Square {
-    pub fn from_algebraic_notation(notation: &str) -> Self {
-        // TODO: error handling
+    pub fn from_algebraic_notation(notation: &str) -> Result<Self> {
         let lowercased_notation = notation.to_lowercase();
         let mut chars = lowercased_notation.chars();
-        let letter = chars.nth(0).unwrap();
-        let number = chars.nth(0).unwrap();
-        Square {
-            column: "abcdefgh".chars().position(|x| x == letter).unwrap() as u8,
-            row: number.to_digit(10).unwrap() as u8 - 1,
+        let letter = chars.nth(0).context("Input string is too short")?;
+        let number = chars
+            .nth(0)
+            .context("Input string is too short")?
+            .to_digit(10)
+            .context("Couldn't parse number")?;
+
+        if number > 8 {
+            bail!("Invalid number in notation")
         }
+
+        Ok(Square {
+            column: "abcdefgh"
+                .chars()
+                .position(|x| x == letter)
+                .context("Invalid letter in notation")? as u8,
+            row: number as u8 - 1,
+        })
     }
-    pub fn to_algebraic_notation(&self) -> String {
-        // TODO: error handling
-        let letter = "abcdefgh".chars().nth(self.column as usize).unwrap();
+
+    pub fn as_algebraic_notation(&self) -> Result<String> {
+        let letter = "abcdefgh"
+            .chars()
+            .nth(self.column as usize)
+            .context("Invalid square column")?;
         let number = self.row + 1;
-        format!("{}{}", letter, number)
+
+        if number > 8 {
+            bail!("Invalid square row");
+        }
+
+        Ok(format!("{}{}", letter, number))
     }
 }
 
@@ -221,8 +241,8 @@ impl GameState {
         }
     }
 
-    pub fn get_piece_at_square(&self, square: &Square) -> Piece {
-        self.board[square.column as usize][square.row as usize].unwrap()
+    pub fn get_piece_at_square(&self, square: &Square) -> Option<Piece> {
+        self.board[square.column as usize][square.row as usize]
     }
 
     pub fn replace_piece(&mut self, square: &Square, new_piece: Option<Piece>) {
@@ -244,20 +264,30 @@ mod tests {
     #[test]
     fn test_square_from_algebraic_notation() {
         assert_eq!(
-            Square::from_algebraic_notation("a1"),
+            Square::from_algebraic_notation("a1").unwrap(),
             Square { column: 0, row: 0 }
         );
 
         assert_eq!(
-            Square::from_algebraic_notation("h8"),
+            Square::from_algebraic_notation("h8").unwrap(),
             Square { column: 7, row: 7 }
         );
     }
 
     #[test]
     fn test_square_to_algebraic_notation() {
-        assert_eq!(Square { column: 0, row: 0 }.to_algebraic_notation(), "a1");
+        assert_eq!(
+            Square { column: 0, row: 0 }
+                .as_algebraic_notation()
+                .unwrap(),
+            "a1"
+        );
 
-        assert_eq!(Square { column: 7, row: 7 }.to_algebraic_notation(), "h8");
+        assert_eq!(
+            Square { column: 7, row: 7 }
+                .as_algebraic_notation()
+                .unwrap(),
+            "h8"
+        );
     }
 }

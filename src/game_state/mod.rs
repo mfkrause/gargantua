@@ -1,5 +1,4 @@
 use anyhow::{Context, Result, bail};
-use std::fmt;
 
 #[derive(Debug, Clone, Copy)]
 pub enum PieceColor {
@@ -247,13 +246,6 @@ impl GameState {
 
     pub fn replace_piece(&mut self, square: &Square, new_piece: Option<Piece>) {
         self.board[square.column as usize][square.row as usize] = new_piece;
-    }
-}
-
-impl fmt::Display for GameState {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        // TODO: Print visual representation of board
-        write!(f, "{:?}", self)
     }
 }
 

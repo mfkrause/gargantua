@@ -1,13 +1,13 @@
 use macroquad::prelude::*;
 
-use crate::game_state::{GameState, Square};
+use crate::game_state::GameState;
 use crate::gui::drawing::{Textures, draw_game_state};
+use crate::gui::mouse::MouseState;
+use crate::utils::constants::WINDOW_SIZE;
 
 mod game_state;
 mod gui;
-
-const WINDOW_SIZE: f32 = 500.0;
-const SQUARE_SIZE: f32 = WINDOW_SIZE / 8.0;
+mod utils;
 
 fn window_conf() -> Conf {
     Conf {
@@ -23,27 +23,11 @@ async fn main() {
     let textures = Textures::load().await;
 
     let mut game_state = GameState::initial_position();
-    let mut highlighted_field: Option<Square> = None;
+    let mut mouse_state = MouseState::default();
 
     loop {
-        draw_game_state(&game_state, &textures, &highlighted_field, WINDOW_SIZE);
-
-        if is_mouse_button_released(MouseButton::Left) {
-            let mouse_pos = mouse_position();
-            let square = Square {
-                column: 7 - (mouse_pos.1 / SQUARE_SIZE).floor() as u8,
-                row: (mouse_pos.0 / SQUARE_SIZE).floor() as u8,
-            };
-
-            if let Some(source_square) = highlighted_field {
-                // Move piece to new location
-                game_state.replace_piece(&square, game_state.get_piece_at_square(&source_square));
-                game_state.replace_piece(&source_square, None);
-                highlighted_field = None;
-            } else {
-                highlighted_field = Some(square);
-            }
-        }
+        mouse_state.handle_events(&mut game_state);
+        draw_game_state(&game_state, &textures, &mouse_state, WINDOW_SIZE);
 
         next_frame().await
     }

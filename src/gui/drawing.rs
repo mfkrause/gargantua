@@ -5,7 +5,10 @@ use macroquad::{
     texture::{DrawTextureParams, Texture2D, draw_texture_ex, load_texture},
 };
 
-use crate::game_state::{GameState, Piece, PieceColor, PieceKind, Square};
+use crate::{
+    game_state::{GameState, Piece, PieceColor, PieceKind, Square},
+    gui::mouse::MouseState,
+};
 
 const LIGHT_SQUARE_COLOR: Color = Color::from_hex(0xE2E2E2);
 const DARK_SQUARE_COLOR: Color = Color::from_hex(0x6E7E85);
@@ -64,7 +67,7 @@ impl Textures {
 pub fn draw_game_state(
     game_state: &GameState,
     textures: &Textures,
-    highlighted_square: &Option<Square>,
+    mouse_state: &MouseState,
     window_size: f32,
 ) {
     let square_size = window_size / 8.0;
@@ -91,7 +94,8 @@ pub fn draw_game_state(
                 },
             );
 
-            if let Some(s) = highlighted_square
+            if let Some(s) = mouse_state.active_square
+                && mouse_state.dragging_piece.is_none()
                 && s.column == current_square.column
                 && s.row == current_square.row
             {
@@ -105,13 +109,31 @@ pub fn draw_game_state(
                 );
             }
 
-            // Draw piece
-            if let Some(p) = piece {
+            // Draw piece (if it's not the currently dragged one)
+            if let Some(p) = piece
+                && !(mouse_state.dragging_piece.is_some()
+                    && Some(current_square) == mouse_state.active_square)
+            {
                 let texture = textures.get_texture_for_piece(p);
                 draw_texture_ex(
                     texture,
                     current_square_x,
                     current_square_y,
+                    WHITE,
+                    DrawTextureParams {
+                        dest_size: Some(vec2(square_size, square_size)),
+                        ..Default::default()
+                    },
+                );
+            }
+
+            // Draw piece that's currently being dragged
+            if let Some(p) = mouse_state.dragging_piece {
+                let texture = textures.get_texture_for_piece(&p);
+                draw_texture_ex(
+                    texture,
+                    mouse_state.mouse_vec.x - mouse_state.drag_offset.x,
+                    mouse_state.mouse_vec.y - mouse_state.drag_offset.y,
                     WHITE,
                     DrawTextureParams {
                         dest_size: Some(vec2(square_size, square_size)),

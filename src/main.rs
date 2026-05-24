@@ -1,8 +1,11 @@
 use macroquad::prelude::*;
 
-use crate::game_state::GameState;
+use game_state::GameState;
+
+use crate::gui::drawing::Textures;
 
 mod game_state;
+mod gui;
 
 const WINDOW_SIZE: f32 = 500.0;
 const SQUARE_SIZE: f32 = WINDOW_SIZE / 8.0;
@@ -19,10 +22,9 @@ fn window_conf() -> Conf {
 #[macroquad::main(window_conf)]
 async fn main() {
     let game_state = GameState::initial_position();
+    let textures = Textures::load().await;
 
     loop {
-        clear_background(BLUE);
-
         for (y, board_col) in game_state.board.iter().enumerate() {
             for (x, piece) in board_col.iter().enumerate() {
                 let square_x = (x as f32) * (WINDOW_SIZE / 8.0);
@@ -43,7 +45,17 @@ async fn main() {
 
                 // Draw piece
                 if let Some(p) = piece {
-                    p.draw(square_x, square_y, SQUARE_SIZE, SQUARE_SIZE).await;
+                    let texture = textures.get_texture_for_piece(p);
+                    draw_texture_ex(
+                        texture,
+                        square_x,
+                        square_y,
+                        WHITE,
+                        DrawTextureParams {
+                            dest_size: Some(vec2(SQUARE_SIZE, SQUARE_SIZE)),
+                            ..Default::default()
+                        },
+                    );
                 }
             }
         }

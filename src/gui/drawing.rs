@@ -88,9 +88,9 @@ pub fn draw_game_state(
                 square_size,
                 square_size,
                 if (x + y) % 2 == 0 {
-                    LIGHT_SQUARE_COLOR
-                } else {
                     DARK_SQUARE_COLOR
+                } else {
+                    LIGHT_SQUARE_COLOR
                 },
             );
 

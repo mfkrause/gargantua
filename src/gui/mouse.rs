@@ -19,6 +19,7 @@ pub enum DragState {
     No,
     Pending(Piece, Vec2),
     Dragging(Piece, Vec2),
+    Dropped(Piece, Square, Square),
 }
 
 #[derive(Debug, Default)]
@@ -30,7 +31,7 @@ pub struct MouseState {
 }
 
 impl MouseState {
-    pub fn handle_events(&mut self, game_state: &mut GameState) {
+    pub fn handle_events(&mut self, game_state: &GameState) {
         let mouse_pos = mouse_position();
         self.mouse_vec = Vec2::from(mouse_pos);
 
@@ -48,6 +49,7 @@ impl MouseState {
         };
 
         if is_mouse_button_pressed(MouseButton::Left)
+            && self.active_square.is_none()
             && let Some(piece) = game_state.get_piece_at_square(&square_at_mouse_pos)
         {
             self.time_mouse_down = Some(SystemTime::now());
@@ -87,21 +89,24 @@ impl MouseState {
 
             if !matches!(self.drag_state, DragState::Pending(..))
                 && let Some(source_square) = self.active_square
+                && let Some(source_piece) = game_state.get_piece_at_square(&source_square)
             {
                 // User either dragged or clicked a piece to new location
-                game_state.replace_piece(
-                    &target_square,
-                    game_state.get_piece_at_square(&source_square),
-                );
-                game_state.replace_piece(&source_square, None);
+                self.drag_state = DragState::Dropped(source_piece, source_square, target_square);
                 self.active_square = None;
             } else {
                 // User clicked with no square yet highlighted
                 self.active_square = Some(target_square);
+                self.drag_state = DragState::No;
             }
 
             self.time_mouse_down = None;
-            self.drag_state = DragState::No;
         }
+    }
+
+    pub fn reset(&mut self) {
+        self.time_mouse_down = None;
+        self.active_square = None;
+        self.drag_state = DragState::default();
     }
 }

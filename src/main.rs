@@ -2,7 +2,7 @@ use macroquad::prelude::*;
 
 use crate::game_state::GameState;
 use crate::gui::drawing::{Textures, draw_game_state};
-use crate::gui::mouse::MouseState;
+use crate::gui::mouse::{DragState, MouseState};
 use crate::utils::constants::WINDOW_SIZE;
 
 mod game_state;
@@ -26,7 +26,13 @@ async fn main() {
     let mut mouse_state = MouseState::default();
 
     loop {
-        mouse_state.handle_events(&mut game_state);
+        mouse_state.handle_events(&game_state);
+
+        if let DragState::Dropped(piece, source_square, target_square) = mouse_state.drag_state {
+            game_state.replace_piece(&target_square, Some(piece));
+            game_state.replace_piece(&source_square, None);
+            mouse_state.reset();
+        }
 
         draw_game_state(&game_state, &textures, &mouse_state, WINDOW_SIZE);
 

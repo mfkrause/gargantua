@@ -10,15 +10,22 @@ use macroquad::{
 
 use crate::{
     game_state::{GameState, Piece, Square},
-    utils::constants::SQUARE_SIZE,
+    utils::constants::{SQUARE_SIZE, WINDOW_SIZE},
 };
+
+#[derive(Default, Debug, PartialEq)]
+pub enum DragState {
+    #[default]
+    No,
+    Pending(Piece, Vec2),
+    Dragging(Piece, Vec2),
+}
 
 #[derive(Debug, Default)]
 pub struct MouseState {
     pub time_mouse_down: Option<SystemTime>,
     pub active_square: Option<Square>,
-    pub dragging_piece: Option<Piece>,
-    pub drag_offset: Vec2,
+    pub drag_state: DragState,
     pub mouse_vec: Vec2,
 }
 
@@ -27,32 +34,48 @@ impl MouseState {
         let mouse_pos = mouse_position();
         self.mouse_vec = Vec2::from(mouse_pos);
 
-        if is_mouse_button_pressed(MouseButton::Left) {
-            self.time_mouse_down = Some(SystemTime::now());
+        if self.mouse_vec.x < 0.0
+            || self.mouse_vec.y < 0.0
+            || self.mouse_vec.x > WINDOW_SIZE
+            || self.mouse_vec.y > WINDOW_SIZE
+        {
+            return;
         }
 
+        let square_at_mouse_pos = Square {
+            column: 7 - (self.mouse_vec.y / SQUARE_SIZE).floor() as u8,
+            row: (self.mouse_vec.x / SQUARE_SIZE).floor() as u8,
+        };
+
+        if is_mouse_button_pressed(MouseButton::Left)
+            && let Some(piece) = game_state.get_piece_at_square(&square_at_mouse_pos)
+        {
+            self.time_mouse_down = Some(SystemTime::now());
+
+            self.active_square = Some(square_at_mouse_pos);
+
+            self.drag_state = DragState::Pending(
+                piece,
+                Vec2 {
+                    x: self.mouse_vec.x % SQUARE_SIZE,
+                    y: self.mouse_vec.y % SQUARE_SIZE,
+                },
+            );
+        }
+
+        // If we're pending for drag & drop, wait until hold-timeout passed or user started dragging the piece
         if let Some(time_down) = self.time_mouse_down
             && is_mouse_button_down(MouseButton::Left)
+            && let DragState::Pending(piece, pos) = self.drag_state
         {
             let now = SystemTime::now();
             let time_delta = now
                 .duration_since(time_down)
                 .expect("Time should move forward");
 
-            if time_delta.as_millis() > 200 {
+            if time_delta.as_millis() > 200 || self.active_square != Some(square_at_mouse_pos) {
                 // The user is holding the mouse
-                if self.dragging_piece.is_none() {
-                    let square = Square {
-                        column: 7 - (self.mouse_vec.y / SQUARE_SIZE).floor() as u8,
-                        row: (self.mouse_vec.x / SQUARE_SIZE).floor() as u8,
-                    };
-                    self.active_square = Some(square);
-                    self.dragging_piece = game_state.get_piece_at_square(&square);
-                    self.drag_offset = Vec2 {
-                        x: self.mouse_vec.x % SQUARE_SIZE,
-                        y: self.mouse_vec.y % SQUARE_SIZE,
-                    }
-                }
+                self.drag_state = DragState::Dragging(piece, pos);
             }
         }
 
@@ -76,7 +99,7 @@ impl MouseState {
             }
 
             self.time_mouse_down = None;
-            self.dragging_piece = None;
+            self.drag_state = DragState::No;
         }
     }
 }

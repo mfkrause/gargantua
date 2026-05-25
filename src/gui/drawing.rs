@@ -7,7 +7,7 @@ use macroquad::{
 
 use crate::{
     game_state::{GameState, Piece, PieceColor, PieceKind, Square},
-    gui::mouse::MouseState,
+    gui::mouse::{DragState, MouseState},
 };
 
 const LIGHT_SQUARE_COLOR: Color = Color::from_hex(0xE2E2E2);
@@ -95,7 +95,7 @@ pub fn draw_game_state(
             );
 
             if let Some(s) = mouse_state.active_square
-                && mouse_state.dragging_piece.is_none()
+                && matches!(mouse_state.drag_state, DragState::No)
                 && s.column == current_square.column
                 && s.row == current_square.row
             {
@@ -111,8 +111,9 @@ pub fn draw_game_state(
 
             // Draw piece (if it's not the currently dragged one)
             if let Some(p) = piece
-                && !(mouse_state.dragging_piece.is_some()
-                    && Some(current_square) == mouse_state.active_square)
+                && (matches!(mouse_state.drag_state, DragState::No)
+                    || matches!(mouse_state.drag_state, DragState::Pending(..))
+                    || Some(current_square) != mouse_state.active_square)
             {
                 let texture = textures.get_texture_for_piece(p);
                 draw_texture_ex(
@@ -128,12 +129,12 @@ pub fn draw_game_state(
             }
 
             // Draw piece that's currently being dragged
-            if let Some(p) = mouse_state.dragging_piece {
-                let texture = textures.get_texture_for_piece(&p);
+            if let DragState::Dragging(piece, drag_offset) = mouse_state.drag_state {
+                let texture = textures.get_texture_for_piece(&piece);
                 draw_texture_ex(
                     texture,
-                    mouse_state.mouse_vec.x - mouse_state.drag_offset.x,
-                    mouse_state.mouse_vec.y - mouse_state.drag_offset.y,
+                    mouse_state.mouse_vec.x - drag_offset.x,
+                    mouse_state.mouse_vec.y - drag_offset.y,
                     WHITE,
                     DrawTextureParams {
                         dest_size: Some(vec2(square_size, square_size)),

@@ -27,6 +27,7 @@ async fn main() {
 
     loop {
         mouse_state.handle_events(&mut game_state);
+
         draw_game_state(&game_state, &textures, &mouse_state, WINDOW_SIZE);
 
         next_frame().await

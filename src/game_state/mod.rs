@@ -1,12 +1,12 @@
 use anyhow::{Context, Result, bail};
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum PieceColor {
     White,
     Black,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum PieceKind {
     Pawn,
     Knight,
@@ -16,7 +16,7 @@ pub enum PieceKind {
     King,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Piece {
     pub piece: PieceKind,
     pub color: PieceColor,

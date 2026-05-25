@@ -85,7 +85,9 @@ impl MouseState {
                 row: (self.mouse_vec.x / SQUARE_SIZE).floor() as u8,
             };
 
-            if let Some(source_square) = self.active_square {
+            if !matches!(self.drag_state, DragState::Pending(..))
+                && let Some(source_square) = self.active_square
+            {
                 // User either dragged or clicked a piece to new location
                 game_state.replace_piece(
                     &target_square,

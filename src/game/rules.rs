@@ -66,7 +66,7 @@ pub fn attacks_for_pawn(state: &GameState, piece: &Piece, square: &Square) -> Bi
     attacks |= (if piece.color == PieceColor::White {
         (src & !Bitboard::FILE_A) << 7 | (src & !Bitboard::FILE_H) << 9
     } else {
-        (src & !Bitboard::FILE_H) | (src & !Bitboard::FILE_H) >> 9
+        (src & !Bitboard::FILE_H) >> 7 | (src & !Bitboard::FILE_H) >> 9
     }) & enemy_bb;
 
     attacks

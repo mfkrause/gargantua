@@ -1,5 +1,7 @@
 use std::fmt::Display;
 
+use anyhow::Result;
+
 use crate::game::game_state::Square;
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
@@ -8,8 +10,16 @@ pub struct Bitboard(pub u64);
 impl Bitboard {
     pub const EMPTY: Self = Self(0);
     pub const FULL: Self = Self(!0);
+    pub const FILE_A: Self = Self(0x0101010101010101);
+    pub const FILE_B: Self = Self(0x0202020202020202);
+    pub const FILE_C: Self = Self(0x0404040404040404);
+    pub const FILE_D: Self = Self(0x0808080808080808);
+    pub const FILE_E: Self = Self(0x1010101010101010);
+    pub const FILE_F: Self = Self(0x2020202020202020);
+    pub const FILE_G: Self = Self(0x4040404040404040);
+    pub const FILE_H: Self = Self(0x8080808080808080);
 
-    pub fn contains(self, square: &Square) -> bool {
+    pub fn contains(&self, square: &Square) -> bool {
         self.0 & (1u64 << square.as_bit_index()) != 0
     }
 
@@ -19,6 +29,25 @@ impl Bitboard {
 
     pub fn clear(&mut self, square: &Square) {
         self.0 &= !(1u64 << square.as_bit_index());
+    }
+
+    pub fn pop_lsb(&mut self) {
+        if self.0 == 0 {
+            return;
+        }
+        self.0 &= self.0 - 1;
+    }
+
+    pub fn as_squares(&self) -> Vec<Square> {
+        let mut res: Vec<Square> = vec![];
+        let mut bb = *self;
+        while bb.0 != 0 {
+            let index = bb.0.trailing_zeros();
+            bb.pop_lsb();
+            res.push(Square::from_bit_index(index as u8));
+        }
+
+        res
     }
 }
 
@@ -86,6 +115,36 @@ impl std::ops::Not for Bitboard {
 
     fn not(self) -> Self::Output {
         Self(!self.0)
+    }
+}
+
+impl std::ops::Shl for Bitboard {
+    type Output = Self;
+
+    fn shl(self, rhs: Self) -> Self::Output {
+        Self(self.0 << rhs.0)
+    }
+}
+
+impl std::ops::Shl<u8> for Bitboard {
+    type Output = Self;
+    fn shl(self, rhs: u8) -> Self::Output {
+        Self(self.0 << rhs)
+    }
+}
+
+impl std::ops::Shr for Bitboard {
+    type Output = Self;
+
+    fn shr(self, rhs: Self) -> Self::Output {
+        Self(self.0 >> rhs.0)
+    }
+}
+
+impl std::ops::Shr<u8> for Bitboard {
+    type Output = Self;
+    fn shr(self, rhs: u8) -> Self::Output {
+        Self(self.0 >> rhs)
     }
 }
 

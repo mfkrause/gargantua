@@ -139,17 +139,17 @@ impl std::ops::IndexMut<PieceColor> for ColorBitboards {
 
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct Position {
-    bb_pieces: ColorBitboards,
+    pub bb_pieces: ColorBitboards,
 }
 
 impl Position {
-    fn bb_color(&self, color: PieceColor) -> Bitboard {
+    pub fn bb_color(&self, color: PieceColor) -> Bitboard {
         PieceKind::ALL.iter().fold(Bitboard::EMPTY, |acc, &kind| {
             acc | self.bb_pieces[color][kind]
         })
     }
 
-    fn bb_all(&self) -> Bitboard {
+    pub fn bb_all(&self) -> Bitboard {
         self.bb_color(PieceColor::White) | self.bb_color(PieceColor::Black)
     }
 }

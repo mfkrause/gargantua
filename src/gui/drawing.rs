@@ -1,12 +1,15 @@
 use macroquad::{
-    color::{Color, RED, WHITE},
+    color::{BLUE, Color, RED, WHITE},
     math::vec2,
     shapes::{draw_rectangle, draw_rectangle_lines},
     texture::{DrawTextureParams, Texture2D, draw_texture_ex, load_texture},
 };
 
 use crate::{
-    game::game_state::{GameState, Piece, PieceColor, PieceKind, Square},
+    game::{
+        game_state::{GameState, Piece, PieceColor, PieceKind, Square},
+        rules::attacks_for,
+    },
     gui::mouse::{DragState, MouseState},
 };
 
@@ -123,6 +126,18 @@ pub fn draw_game_state(
                     ..Default::default()
                 },
             );
+        }
+    }
+
+    // Draw possible attacks
+    if let Some(square) = mouse_state.active_square
+        && let Some(piece) = game_state.get_piece_at_square(&square)
+    {
+        for square in attacks_for(game_state, &piece, &square).as_squares() {
+            let square_x = square.file as f32 * (window_size / 8.0);
+            let square_y = (7.0 - square.rank as f32) * (window_size / 8.0);
+
+            draw_rectangle_lines(square_x, square_y, square_size, square_size, 4.0, BLUE);
         }
     }
 

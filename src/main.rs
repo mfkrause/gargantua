@@ -1,7 +1,7 @@
 use macroquad::prelude::*;
 
 use crate::game::game_state::GameState;
-use crate::game::rules::can_move_piece;
+use crate::game::rules::attacks_for;
 use crate::gui::drawing::{Textures, draw_game_state};
 use crate::gui::mouse::{DragState, MouseState};
 use crate::utils::constants::WINDOW_SIZE;
@@ -30,7 +30,7 @@ async fn main() {
         mouse_state.handle_events(&game_state);
 
         if let DragState::Dropped(piece, source_square, target_square) = mouse_state.drag_state {
-            if can_move_piece(&game_state, &source_square, &target_square).unwrap_or(false) {
+            if attacks_for(&game_state, &piece, &source_square).contains(&target_square) {
                 game_state.replace_piece(&target_square, Some(piece));
                 game_state.replace_piece(&source_square, None);
             }

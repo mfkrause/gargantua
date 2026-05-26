@@ -18,6 +18,14 @@ impl Bitboard {
     pub const FILE_F: Self = Self(0x2020202020202020);
     pub const FILE_G: Self = Self(0x4040404040404040);
     pub const FILE_H: Self = Self(0x8080808080808080);
+    pub const RANK_1: Self = Self(0xFF);
+    pub const RANK_2: Self = Self(0xFF00);
+    pub const RANK_3: Self = Self(0xFF0000);
+    pub const RANK_4: Self = Self(0xFF000000);
+    pub const RANK_5: Self = Self(0xFF00000000);
+    pub const RANK_6: Self = Self(0xFF0000000000);
+    pub const RANK_7: Self = Self(0xFF000000000000);
+    pub const RANK_8: Self = Self(0xFF00000000000000);
 
     pub fn contains(&self, square: &Square) -> bool {
         self.0 & (1u64 << square.as_bit_index()) != 0

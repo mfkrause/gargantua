@@ -22,28 +22,59 @@ pub fn can_touch_piece(state: &GameState, square: &Square) -> bool {
     true
 }
 
-pub fn attacks_for_knight(state: &GameState, square: &Square) -> Bitboard {
+pub fn attacks_for_knight(state: &GameState, _: &Piece, square: &Square) -> Bitboard {
     let mut src = Bitboard::EMPTY;
     src.set(square);
 
-    ((src & !Bitboard::FILE_H)  << 17)  // +2r +1f
-        | ((src & !Bitboard::FILE_A)  << 15)  // +2r -1f
+    ((src & !Bitboard::FILE_H) << 17)  // +2r +1f
+        | ((src & !Bitboard::FILE_A) << 15)  // +2r -1f
         | ((src & !(Bitboard::FILE_G | Bitboard::FILE_H)) << 10)  // +1r +2f
         | ((src & !(Bitboard::FILE_A | Bitboard::FILE_B)) <<  6)  // +1r -2f
         | ((src & !(Bitboard::FILE_G | Bitboard::FILE_H)) >>  6)  // -1r +2f
         | ((src & !(Bitboard::FILE_A | Bitboard::FILE_B)) >> 10)  // -1r -2f
-        | ((src & !Bitboard::FILE_H)  >> 15)  // -2r +1f
-        | ((src & !Bitboard::FILE_A)  >> 17) // -2r -1f
+        | ((src & !Bitboard::FILE_H) >> 15)  // -2r +1f
+        | ((src & !Bitboard::FILE_A) >> 17) // -2r -1f
+}
+
+pub fn attacks_for_king(state: &GameState, _: &Piece, square: &Square) -> Bitboard {
+    let mut src = Bitboard::EMPTY;
+    src.set(square);
+
+    ((src & !Bitboard::FILE_H) << 1)  // +1f
+        | ((src & !Bitboard::FILE_H) >> 7) // -1r +1f
+        | (src >> 8) // -1r
+        | ((src & !Bitboard::FILE_A) >> 9) // -1r -1f
+        | ((src & !Bitboard::FILE_A) >> 1) // -1f
+        | ((src & !Bitboard::FILE_A) << 7) // +1r -1f
+        | (src << 8) // +1r
+        | ((src & !Bitboard::FILE_H) << 9) // +1r +1f
+}
+
+pub fn attacks_for_pawn(state: &GameState, piece: &Piece, square: &Square) -> Bitboard {
+    let mut src = Bitboard::EMPTY;
+    src.set(square);
+
+    // TODO: diagonal capture moves & do not capture orthogonally
+
+    if piece.color == PieceColor::White {
+        src << 8 | ((src & Bitboard::RANK_2) << 16)
+    } else {
+        src >> 8 | ((src & Bitboard::RANK_7) >> 16)
+    }
 }
 
 pub fn attacks_for(state: &GameState, piece: &Piece, square: &Square) -> Bitboard {
     let mut attacks = match piece.piece {
-        PieceKind::Knight => attacks_for_knight(state, square),
-        _ => Bitboard::EMPTY, // TODO: implement
+        PieceKind::Pawn => attacks_for_pawn(state, piece, square),
+        PieceKind::Knight => attacks_for_knight(state, piece, square),
+        PieceKind::King => attacks_for_king(state, piece, square),
+        _ => Bitboard::FULL, // TODO: implement
     };
 
     // Remove attacks that would touch friendly pieces
     attacks &= !state.position.bb_color(state.color_to_move);
+
+    // TODO: non-pseudo-legal moves (check, pins, etc.)
 
     attacks
 }

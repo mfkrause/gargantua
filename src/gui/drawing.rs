@@ -6,7 +6,7 @@ use macroquad::{
 };
 
 use crate::{
-    game_state::{GameState, Piece, PieceColor, PieceKind, Square},
+    game::game_state::{GameState, Piece, PieceColor, PieceKind, Square},
     gui::mouse::{DragState, MouseState},
 };
 

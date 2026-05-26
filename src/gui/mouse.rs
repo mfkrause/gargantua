@@ -9,7 +9,10 @@ use macroquad::{
 };
 
 use crate::{
-    game_state::{GameState, Piece, Square},
+    game::{
+        game_state::{GameState, Piece, Square},
+        rules::can_touch_piece,
+    },
     utils::constants::{SQUARE_SIZE, WINDOW_SIZE},
 };
 
@@ -51,6 +54,7 @@ impl MouseState {
         if is_mouse_button_pressed(MouseButton::Left)
             && self.active_square.is_none()
             && let Some(piece) = game_state.get_piece_at_square(&square_at_mouse_pos)
+            && can_touch_piece(game_state, &square_at_mouse_pos)
         {
             self.time_mouse_down = Some(SystemTime::now());
 
@@ -94,7 +98,7 @@ impl MouseState {
                 // User either dragged or clicked a piece to new location
                 self.drag_state = DragState::Dropped(source_piece, source_square, target_square);
                 self.active_square = None;
-            } else {
+            } else if can_touch_piece(game_state, &square_at_mouse_pos) {
                 // User clicked with no square yet highlighted
                 self.active_square = Some(target_square);
                 self.drag_state = DragState::No;

@@ -94,21 +94,6 @@ pub fn draw_game_state(
             },
         );
 
-        if let Some(s) = mouse_state.active_square
-            && matches!(mouse_state.drag_state, DragState::No)
-            && s.rank == current_square.rank
-            && s.file == current_square.file
-        {
-            draw_rectangle_lines(
-                current_square_x,
-                current_square_y,
-                square_size,
-                square_size,
-                4.0,
-                RED,
-            );
-        }
-
         // Draw piece (if it's not the currently dragged one)
         if let Some(p) = piece
             && (matches!(mouse_state.drag_state, DragState::No)
@@ -127,6 +112,13 @@ pub fn draw_game_state(
                 },
             );
         }
+    }
+
+    // Draw active (source) square
+    if let Some(square) = mouse_state.active_square {
+        let square_x = square.file as f32 * (window_size / 8.0);
+        let square_y = (7.0 - square.rank as f32) * (window_size / 8.0);
+        draw_rectangle_lines(square_x, square_y, square_size, square_size, 4.0, RED);
     }
 
     // Draw possible attacks

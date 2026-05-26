@@ -156,6 +156,12 @@ impl std::ops::Shr<u8> for Bitboard {
     }
 }
 
+impl std::cmp::PartialEq<u64> for Bitboard {
+    fn eq(&self, other: &u64) -> bool {
+        &self.0 == other
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

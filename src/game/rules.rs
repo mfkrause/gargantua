@@ -39,8 +39,8 @@ pub fn get_distance_of_sliding_move(
     source_square: &Square,
     target_square: &Square,
 ) -> Result<SlidingMoveDistance> {
-    let horizontal = target_square.row as i8 - source_square.row as i8;
-    let vertical = target_square.column as i8 - source_square.column as i8;
+    let horizontal = target_square.file as i8 - source_square.file as i8;
+    let vertical = target_square.rank as i8 - source_square.rank as i8;
 
     if horizontal != 0 && vertical != 0 && horizontal.abs() != vertical.abs() {
         bail!("Invalid move direction");
@@ -128,8 +128,8 @@ fn can_move_knight(
     source_square: &Square,
     target_square: &Square,
 ) -> Result<bool> {
-    let horizontal = target_square.row as i8 - source_square.row as i8;
-    let vertical = target_square.column as i8 - source_square.column as i8;
+    let horizontal = target_square.file as i8 - source_square.file as i8;
+    let vertical = target_square.rank as i8 - source_square.rank as i8;
 
     if !((horizontal.abs() == 2 && vertical.abs() == 1)
         || (horizontal.abs() == 1 && vertical.abs() == 2))
@@ -207,7 +207,6 @@ pub fn can_move_piece(
     }
 
     // Sliding pieces
-
     let distance = get_distance_of_sliding_move(source_square, target_square)?;
 
     match piece.piece {

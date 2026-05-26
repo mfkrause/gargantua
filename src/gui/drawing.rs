@@ -71,14 +71,12 @@ pub fn draw_game_state(
     window_size: f32,
 ) {
     let square_size = window_size / 8.0;
-    for (i, piece) in game_state.board.iter().enumerate() {
-        let current_square = Square {
-            column: (i as f32 / 8.0).floor() as u8,
-            row: i as u8 % 8,
-        };
+    for i in 0..64 {
+        let current_square = Square::from_bit_index(i);
+        let piece = game_state.get_piece_at_square(&current_square);
 
-        let current_square_x = current_square.row as f32 * (window_size / 8.0);
-        let current_square_y = (7.0 - current_square.column as f32) * (window_size / 8.0);
+        let current_square_x = current_square.file as f32 * (window_size / 8.0);
+        let current_square_y = (7.0 - current_square.rank as f32) * (window_size / 8.0);
 
         // Draw square
         draw_rectangle(
@@ -86,9 +84,7 @@ pub fn draw_game_state(
             current_square_y,
             square_size,
             square_size,
-            if (((i as f32 / 8.0).floor() as u8).is_multiple_of(2) && i % 2 == 1)
-                || (!((i as f32 / 8.0).floor() as u8).is_multiple_of(2) && i % 2 == 0)
-            {
+            if (current_square.rank + current_square.file) % 2 == 1 {
                 LIGHT_SQUARE_COLOR
             } else {
                 DARK_SQUARE_COLOR
@@ -97,8 +93,8 @@ pub fn draw_game_state(
 
         if let Some(s) = mouse_state.active_square
             && matches!(mouse_state.drag_state, DragState::No)
-            && s.column == current_square.column
-            && s.row == current_square.row
+            && s.rank == current_square.rank
+            && s.file == current_square.file
         {
             draw_rectangle_lines(
                 current_square_x,
@@ -116,7 +112,7 @@ pub fn draw_game_state(
                 || matches!(mouse_state.drag_state, DragState::Pending(..))
                 || Some(current_square) != mouse_state.active_square)
         {
-            let texture = textures.get_texture_for_piece(p);
+            let texture = textures.get_texture_for_piece(&p);
             draw_texture_ex(
                 texture,
                 current_square_x,

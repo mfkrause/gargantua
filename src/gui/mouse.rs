@@ -47,8 +47,8 @@ impl MouseState {
         }
 
         let square_at_mouse_pos = Square {
-            column: 7 - (self.mouse_vec.y / SQUARE_SIZE).floor() as u8,
-            row: (self.mouse_vec.x / SQUARE_SIZE).floor() as u8,
+            rank: 7 - (self.mouse_vec.y / SQUARE_SIZE).floor() as u8,
+            file: (self.mouse_vec.x / SQUARE_SIZE).floor() as u8,
         };
 
         if is_mouse_button_pressed(MouseButton::Left)
@@ -87,8 +87,8 @@ impl MouseState {
 
         if is_mouse_button_released(MouseButton::Left) {
             let target_square = Square {
-                column: 7 - (self.mouse_vec.y / SQUARE_SIZE).floor() as u8,
-                row: (self.mouse_vec.x / SQUARE_SIZE).floor() as u8,
+                rank: 7 - (self.mouse_vec.y / SQUARE_SIZE).floor() as u8,
+                file: (self.mouse_vec.x / SQUARE_SIZE).floor() as u8,
             };
 
             if !matches!(self.drag_state, DragState::Pending(..))

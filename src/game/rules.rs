@@ -52,24 +52,28 @@ pub fn attacks_for_king(state: &GameState, _: &Piece, square: &Square) -> Bitboa
 
 pub fn attacks_for_pawn(state: &GameState, piece: &Piece, square: &Square) -> Bitboard {
     let mut src = Bitboard::EMPTY;
-    let enemy_bb = state.position.bb_color(!state.color_to_move);
+    let enemy_bb = state.position.bb_color(!piece.color);
     src.set(square);
 
-    // Pushes
-    let mut attacks = (if piece.color == PieceColor::White {
-        src << 8 | ((src & Bitboard::RANK_2) << 16)
+    let single_pushes = (if piece.color == PieceColor::White {
+        src << 8
     } else {
-        src >> 8 | ((src & Bitboard::RANK_7) >> 16)
+        src >> 8
     }) & !enemy_bb;
 
-    // Captures
-    attacks |= (if piece.color == PieceColor::White {
+    let double_pushes = (if piece.color == PieceColor::White {
+        single_pushes << 8
+    } else {
+        single_pushes >> 8
+    }) & !enemy_bb;
+
+    let captures = (if piece.color == PieceColor::White {
         (src & !Bitboard::FILE_A) << 7 | (src & !Bitboard::FILE_H) << 9
     } else {
-        (src & !Bitboard::FILE_H) >> 7 | (src & !Bitboard::FILE_H) >> 9
+        (src & !Bitboard::FILE_H) >> 7 | (src & !Bitboard::FILE_A) >> 9
     }) & enemy_bb;
 
-    attacks
+    single_pushes | double_pushes | captures
 }
 
 pub fn attacks_for(state: &GameState, piece: &Piece, square: &Square) -> Bitboard {

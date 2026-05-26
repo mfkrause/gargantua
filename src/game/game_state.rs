@@ -75,7 +75,7 @@ impl Square {
 
 #[derive(Debug, Clone, Copy)]
 pub struct GameState {
-    pub board: [[Option<Piece>; 8]; 8],
+    pub board: [Option<Piece>; 64],
     pub color_to_move: PieceColor,
     pub white_castling_rights: CastlingRights,
     pub black_castling_rights: CastlingRights,
@@ -86,146 +86,166 @@ impl GameState {
     pub fn initial_position() -> Self {
         Self {
             board: [
-                [
-                    Some(Piece {
-                        piece: PieceKind::Rook,
-                        color: PieceColor::White,
-                    }),
-                    Some(Piece {
-                        piece: PieceKind::Knight,
-                        color: PieceColor::White,
-                    }),
-                    Some(Piece {
-                        piece: PieceKind::Bishop,
-                        color: PieceColor::White,
-                    }),
-                    Some(Piece {
-                        piece: PieceKind::Queen,
-                        color: PieceColor::White,
-                    }),
-                    Some(Piece {
-                        piece: PieceKind::King,
-                        color: PieceColor::White,
-                    }),
-                    Some(Piece {
-                        piece: PieceKind::Bishop,
-                        color: PieceColor::White,
-                    }),
-                    Some(Piece {
-                        piece: PieceKind::Knight,
-                        color: PieceColor::White,
-                    }),
-                    Some(Piece {
-                        piece: PieceKind::Rook,
-                        color: PieceColor::White,
-                    }),
-                ],
-                [
-                    Some(Piece {
-                        piece: PieceKind::Pawn,
-                        color: PieceColor::White,
-                    }),
-                    Some(Piece {
-                        piece: PieceKind::Pawn,
-                        color: PieceColor::White,
-                    }),
-                    Some(Piece {
-                        piece: PieceKind::Pawn,
-                        color: PieceColor::White,
-                    }),
-                    Some(Piece {
-                        piece: PieceKind::Pawn,
-                        color: PieceColor::White,
-                    }),
-                    Some(Piece {
-                        piece: PieceKind::Pawn,
-                        color: PieceColor::White,
-                    }),
-                    Some(Piece {
-                        piece: PieceKind::Pawn,
-                        color: PieceColor::White,
-                    }),
-                    Some(Piece {
-                        piece: PieceKind::Pawn,
-                        color: PieceColor::White,
-                    }),
-                    Some(Piece {
-                        piece: PieceKind::Pawn,
-                        color: PieceColor::White,
-                    }),
-                ],
-                [None, None, None, None, None, None, None, None],
-                [None, None, None, None, None, None, None, None],
-                [None, None, None, None, None, None, None, None],
-                [None, None, None, None, None, None, None, None],
-                [
-                    Some(Piece {
-                        piece: PieceKind::Pawn,
-                        color: PieceColor::Black,
-                    }),
-                    Some(Piece {
-                        piece: PieceKind::Pawn,
-                        color: PieceColor::Black,
-                    }),
-                    Some(Piece {
-                        piece: PieceKind::Pawn,
-                        color: PieceColor::Black,
-                    }),
-                    Some(Piece {
-                        piece: PieceKind::Pawn,
-                        color: PieceColor::Black,
-                    }),
-                    Some(Piece {
-                        piece: PieceKind::Pawn,
-                        color: PieceColor::Black,
-                    }),
-                    Some(Piece {
-                        piece: PieceKind::Pawn,
-                        color: PieceColor::Black,
-                    }),
-                    Some(Piece {
-                        piece: PieceKind::Pawn,
-                        color: PieceColor::Black,
-                    }),
-                    Some(Piece {
-                        piece: PieceKind::Pawn,
-                        color: PieceColor::Black,
-                    }),
-                ],
-                [
-                    Some(Piece {
-                        piece: PieceKind::Rook,
-                        color: PieceColor::Black,
-                    }),
-                    Some(Piece {
-                        piece: PieceKind::Knight,
-                        color: PieceColor::Black,
-                    }),
-                    Some(Piece {
-                        piece: PieceKind::Bishop,
-                        color: PieceColor::Black,
-                    }),
-                    Some(Piece {
-                        piece: PieceKind::Queen,
-                        color: PieceColor::Black,
-                    }),
-                    Some(Piece {
-                        piece: PieceKind::King,
-                        color: PieceColor::Black,
-                    }),
-                    Some(Piece {
-                        piece: PieceKind::Bishop,
-                        color: PieceColor::Black,
-                    }),
-                    Some(Piece {
-                        piece: PieceKind::Knight,
-                        color: PieceColor::Black,
-                    }),
-                    Some(Piece {
-                        piece: PieceKind::Rook,
-                        color: PieceColor::Black,
-                    }),
-                ],
+                Some(Piece {
+                    piece: PieceKind::Rook,
+                    color: PieceColor::White,
+                }),
+                Some(Piece {
+                    piece: PieceKind::Knight,
+                    color: PieceColor::White,
+                }),
+                Some(Piece {
+                    piece: PieceKind::Bishop,
+                    color: PieceColor::White,
+                }),
+                Some(Piece {
+                    piece: PieceKind::Queen,
+                    color: PieceColor::White,
+                }),
+                Some(Piece {
+                    piece: PieceKind::King,
+                    color: PieceColor::White,
+                }),
+                Some(Piece {
+                    piece: PieceKind::Bishop,
+                    color: PieceColor::White,
+                }),
+                Some(Piece {
+                    piece: PieceKind::Knight,
+                    color: PieceColor::White,
+                }),
+                Some(Piece {
+                    piece: PieceKind::Rook,
+                    color: PieceColor::White,
+                }),
+                Some(Piece {
+                    piece: PieceKind::Pawn,
+                    color: PieceColor::White,
+                }),
+                Some(Piece {
+                    piece: PieceKind::Pawn,
+                    color: PieceColor::White,
+                }),
+                Some(Piece {
+                    piece: PieceKind::Pawn,
+                    color: PieceColor::White,
+                }),
+                Some(Piece {
+                    piece: PieceKind::Pawn,
+                    color: PieceColor::White,
+                }),
+                Some(Piece {
+                    piece: PieceKind::Pawn,
+                    color: PieceColor::White,
+                }),
+                Some(Piece {
+                    piece: PieceKind::Pawn,
+                    color: PieceColor::White,
+                }),
+                Some(Piece {
+                    piece: PieceKind::Pawn,
+                    color: PieceColor::White,
+                }),
+                Some(Piece {
+                    piece: PieceKind::Pawn,
+                    color: PieceColor::White,
+                }),
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                Some(Piece {
+                    piece: PieceKind::Pawn,
+                    color: PieceColor::Black,
+                }),
+                Some(Piece {
+                    piece: PieceKind::Pawn,
+                    color: PieceColor::Black,
+                }),
+                Some(Piece {
+                    piece: PieceKind::Pawn,
+                    color: PieceColor::Black,
+                }),
+                Some(Piece {
+                    piece: PieceKind::Pawn,
+                    color: PieceColor::Black,
+                }),
+                Some(Piece {
+                    piece: PieceKind::Pawn,
+                    color: PieceColor::Black,
+                }),
+                Some(Piece {
+                    piece: PieceKind::Pawn,
+                    color: PieceColor::Black,
+                }),
+                Some(Piece {
+                    piece: PieceKind::Pawn,
+                    color: PieceColor::Black,
+                }),
+                Some(Piece {
+                    piece: PieceKind::Pawn,
+                    color: PieceColor::Black,
+                }),
+                Some(Piece {
+                    piece: PieceKind::Rook,
+                    color: PieceColor::Black,
+                }),
+                Some(Piece {
+                    piece: PieceKind::Knight,
+                    color: PieceColor::Black,
+                }),
+                Some(Piece {
+                    piece: PieceKind::Bishop,
+                    color: PieceColor::Black,
+                }),
+                Some(Piece {
+                    piece: PieceKind::Queen,
+                    color: PieceColor::Black,
+                }),
+                Some(Piece {
+                    piece: PieceKind::King,
+                    color: PieceColor::Black,
+                }),
+                Some(Piece {
+                    piece: PieceKind::Bishop,
+                    color: PieceColor::Black,
+                }),
+                Some(Piece {
+                    piece: PieceKind::Knight,
+                    color: PieceColor::Black,
+                }),
+                Some(Piece {
+                    piece: PieceKind::Rook,
+                    color: PieceColor::Black,
+                }),
             ],
             color_to_move: PieceColor::White,
             white_castling_rights: CastlingRights {
@@ -241,11 +261,11 @@ impl GameState {
     }
 
     pub fn get_piece_at_square(&self, square: &Square) -> Option<Piece> {
-        self.board[square.column as usize][square.row as usize]
+        self.board[(square.column * 8 + square.row) as usize]
     }
 
     pub fn replace_piece(&mut self, square: &Square, new_piece: Option<Piece>) {
-        self.board[square.column as usize][square.row as usize] = new_piece;
+        self.board[(square.column * 8 + square.row) as usize] = new_piece;
     }
 }
 

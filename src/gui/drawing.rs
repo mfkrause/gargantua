@@ -71,77 +71,77 @@ pub fn draw_game_state(
     window_size: f32,
 ) {
     let square_size = window_size / 8.0;
-    for (y, board_row) in game_state.board.iter().enumerate() {
-        for (x, piece) in board_row.iter().enumerate() {
-            let current_square = Square {
-                column: y as u8,
-                row: x as u8,
-            };
+    for (i, piece) in game_state.board.iter().enumerate() {
+        let current_square = Square {
+            column: (i as f32 / 8.0).floor() as u8,
+            row: i as u8 % 8,
+        };
 
-            let current_square_x = current_square.row as f32 * (window_size / 8.0);
-            let current_square_y = (7.0 - current_square.column as f32) * (window_size / 8.0);
+        let current_square_x = current_square.row as f32 * (window_size / 8.0);
+        let current_square_y = (7.0 - current_square.column as f32) * (window_size / 8.0);
 
-            // Draw square
-            draw_rectangle(
+        // Draw square
+        draw_rectangle(
+            current_square_x,
+            current_square_y,
+            square_size,
+            square_size,
+            if (((i as f32 / 8.0).floor() as u8).is_multiple_of(2) && i % 2 == 1)
+                || (!((i as f32 / 8.0).floor() as u8).is_multiple_of(2) && i % 2 == 0)
+            {
+                LIGHT_SQUARE_COLOR
+            } else {
+                DARK_SQUARE_COLOR
+            },
+        );
+
+        if let Some(s) = mouse_state.active_square
+            && matches!(mouse_state.drag_state, DragState::No)
+            && s.column == current_square.column
+            && s.row == current_square.row
+        {
+            draw_rectangle_lines(
                 current_square_x,
                 current_square_y,
                 square_size,
                 square_size,
-                if (x + y) % 2 == 0 {
-                    DARK_SQUARE_COLOR
-                } else {
-                    LIGHT_SQUARE_COLOR
+                4.0,
+                RED,
+            );
+        }
+
+        // Draw piece (if it's not the currently dragged one)
+        if let Some(p) = piece
+            && (matches!(mouse_state.drag_state, DragState::No)
+                || matches!(mouse_state.drag_state, DragState::Pending(..))
+                || Some(current_square) != mouse_state.active_square)
+        {
+            let texture = textures.get_texture_for_piece(p);
+            draw_texture_ex(
+                texture,
+                current_square_x,
+                current_square_y,
+                WHITE,
+                DrawTextureParams {
+                    dest_size: Some(vec2(square_size, square_size)),
+                    ..Default::default()
                 },
             );
+        }
 
-            if let Some(s) = mouse_state.active_square
-                && matches!(mouse_state.drag_state, DragState::No)
-                && s.column == current_square.column
-                && s.row == current_square.row
-            {
-                draw_rectangle_lines(
-                    current_square_x,
-                    current_square_y,
-                    square_size,
-                    square_size,
-                    4.0,
-                    RED,
-                );
-            }
-
-            // Draw piece (if it's not the currently dragged one)
-            if let Some(p) = piece
-                && (matches!(mouse_state.drag_state, DragState::No)
-                    || matches!(mouse_state.drag_state, DragState::Pending(..))
-                    || Some(current_square) != mouse_state.active_square)
-            {
-                let texture = textures.get_texture_for_piece(p);
-                draw_texture_ex(
-                    texture,
-                    current_square_x,
-                    current_square_y,
-                    WHITE,
-                    DrawTextureParams {
-                        dest_size: Some(vec2(square_size, square_size)),
-                        ..Default::default()
-                    },
-                );
-            }
-
-            // Draw piece that's currently being dragged
-            if let DragState::Dragging(piece, drag_offset) = mouse_state.drag_state {
-                let texture = textures.get_texture_for_piece(&piece);
-                draw_texture_ex(
-                    texture,
-                    mouse_state.mouse_vec.x - drag_offset.x,
-                    mouse_state.mouse_vec.y - drag_offset.y,
-                    WHITE,
-                    DrawTextureParams {
-                        dest_size: Some(vec2(square_size, square_size)),
-                        ..Default::default()
-                    },
-                );
-            }
+        // Draw piece that's currently being dragged
+        if let DragState::Dragging(piece, drag_offset) = mouse_state.drag_state {
+            let texture = textures.get_texture_for_piece(&piece);
+            draw_texture_ex(
+                texture,
+                mouse_state.mouse_vec.x - drag_offset.x,
+                mouse_state.mouse_vec.y - drag_offset.y,
+                WHITE,
+                DrawTextureParams {
+                    dest_size: Some(vec2(square_size, square_size)),
+                    ..Default::default()
+                },
+            );
         }
     }
 }

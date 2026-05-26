@@ -13,6 +13,16 @@ impl PieceColor {
     pub const ALL: [PieceColor; 2] = [PieceColor::White, PieceColor::Black];
 }
 
+impl std::ops::Not for PieceColor {
+    type Output = Self;
+    fn not(self) -> Self::Output {
+        match self {
+            PieceColor::White => PieceColor::Black,
+            PieceColor::Black => PieceColor::White,
+        }
+    }
+}
+
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum PieceKind {

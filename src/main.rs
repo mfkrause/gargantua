@@ -33,6 +33,7 @@ async fn main() {
             if attacks_for(&game_state, &piece, &source_square).contains(&target_square) {
                 game_state.replace_piece(&target_square, Some(piece));
                 game_state.replace_piece(&source_square, None);
+                game_state.color_to_move = !game_state.color_to_move;
             }
             mouse_state.reset();
         }

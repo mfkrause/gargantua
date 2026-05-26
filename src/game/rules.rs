@@ -52,13 +52,7 @@ pub fn attacks_for_king(state: &GameState, _: &Piece, square: &Square) -> Bitboa
 
 pub fn attacks_for_pawn(state: &GameState, piece: &Piece, square: &Square) -> Bitboard {
     let mut src = Bitboard::EMPTY;
-    let enemy_bb = state
-        .position
-        .bb_color(if state.color_to_move == PieceColor::White {
-            PieceColor::Black
-        } else {
-            PieceColor::White
-        });
+    let enemy_bb = state.position.bb_color(!state.color_to_move);
     src.set(square);
 
     // Pushes

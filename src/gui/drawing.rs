@@ -124,20 +124,20 @@ pub fn draw_game_state(
                 },
             );
         }
+    }
 
-        // Draw piece that's currently being dragged
-        if let DragState::Dragging(piece, drag_offset) = mouse_state.drag_state {
-            let texture = textures.get_texture_for_piece(&piece);
-            draw_texture_ex(
-                texture,
-                mouse_state.mouse_vec.x - drag_offset.x,
-                mouse_state.mouse_vec.y - drag_offset.y,
-                WHITE,
-                DrawTextureParams {
-                    dest_size: Some(vec2(square_size, square_size)),
-                    ..Default::default()
-                },
-            );
-        }
+    // Draw piece that's currently being dragged
+    if let DragState::Dragging(piece, drag_offset) = mouse_state.drag_state {
+        let texture = textures.get_texture_for_piece(&piece);
+        draw_texture_ex(
+            texture,
+            mouse_state.mouse_vec.x - drag_offset.x,
+            mouse_state.mouse_vec.y - drag_offset.y,
+            WHITE,
+            DrawTextureParams {
+                dest_size: Some(vec2(square_size, square_size)),
+                ..Default::default()
+            },
+        );
     }
 }

@@ -143,26 +143,14 @@ pub struct Position {
 }
 
 impl Position {
-    fn bb_white(&self) -> Bitboard {
-        self.bb_pieces[PieceColor::White][PieceKind::Pawn]
-            | self.bb_pieces[PieceColor::White][PieceKind::Knight]
-            | self.bb_pieces[PieceColor::White][PieceKind::Bishop]
-            | self.bb_pieces[PieceColor::White][PieceKind::Rook]
-            | self.bb_pieces[PieceColor::White][PieceKind::Queen]
-            | self.bb_pieces[PieceColor::White][PieceKind::King]
-    }
-
-    fn bb_black(&self) -> Bitboard {
-        self.bb_pieces[PieceColor::Black][PieceKind::Pawn]
-            | self.bb_pieces[PieceColor::Black][PieceKind::Knight]
-            | self.bb_pieces[PieceColor::Black][PieceKind::Bishop]
-            | self.bb_pieces[PieceColor::Black][PieceKind::Rook]
-            | self.bb_pieces[PieceColor::Black][PieceKind::Queen]
-            | self.bb_pieces[PieceColor::Black][PieceKind::King]
+    fn bb_color(&self, color: PieceColor) -> Bitboard {
+        PieceKind::ALL.iter().fold(Bitboard::EMPTY, |acc, &kind| {
+            acc | self.bb_pieces[color][kind]
+        })
     }
 
     fn bb_all(&self) -> Bitboard {
-        self.bb_white() | self.bb_black()
+        self.bb_color(PieceColor::White) | self.bb_color(PieceColor::Black)
     }
 }
 
@@ -212,7 +200,7 @@ impl GameState {
             return None;
         }
 
-        if self.position.bb_white().contains(&square) {
+        if self.position.bb_color(PieceColor::White).contains(&square) {
             for kind in PieceKind::ALL {
                 if self.position.bb_pieces[PieceColor::White][kind].contains(&square) {
                     return Some(Piece {
